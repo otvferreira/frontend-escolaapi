@@ -5,6 +5,7 @@ import './Turmas.css';
 function Turmas() {
     const [turmas, setTurmas] = useState([]);
     const [professores, setProfessores] = useState([]);
+    const [nomeProfessores, setNomeProfessores] = useState({});
     const [editingTurma, setEditingTurma] = useState(null);
 
     const fetchTurmas = async () => {
@@ -16,6 +17,7 @@ function Turmas() {
             const result = await response.json();
             if (Array.isArray(result.data)) {
                 setTurmas(result.data);
+                console.log("Turmas carregadas:", result.data);  // Debug
             } else {
                 console.error('Os dados retornados não são um array:', result.data);
             }
@@ -33,6 +35,12 @@ function Turmas() {
             const result = await response.json();
             if (Array.isArray(result.data)) {
                 setProfessores(result.data);
+                console.log("Professores carregados:", result.data);  // Debug
+                const nomeMap = {};
+                for (const professor of result.data) {
+                    nomeMap[professor.ID] = professor.nome;
+                }
+                setNomeProfessores(nomeMap);
             } else {
                 console.error('Os dados retornados não são um array:', result.data);
             }
@@ -43,16 +51,28 @@ function Turmas() {
 
     const adicionarTurma = async (turma) => {
         try {
-            const response = await fetch('https://escolaapi-go-escola-api.up.railway.app/turmas/adicionar', {
+            console.log('Enviando dados para adicionar turma:', {
+                nome: turma.nome,
+                semestre: turma.semestre,
+                ano: turma.ano,
+                professor_id: turma.professor_id,
+            });  // Debug
+
+            const response = await fetch('https://escolaapi-go-escola-api.up.railway.app/turmas', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(turma),
+                body: JSON.stringify({
+                    nome: turma.nome,
+                    semestre: turma.semestre,
+                    ano: parseInt(turma.ano, 10), // Certifique-se de que o ano é um número
+                    professor_id: turma.professor_id,
+                }),
             });
 
             if (!response.ok) {
-                throw new Error('Erro ao adicionar turma');
+                throw new Error(`Erro ao adicionar turma: ${response.status} ${response.statusText}`);
             }
 
             const data = await response.json();
@@ -64,18 +84,36 @@ function Turmas() {
 
     const editarTurma = async (turma) => {
         try {
+            // Verifique se o ID da turma está definido
+            if (!turma.ID) {
+                throw new Error('ID da turma é indefinido');
+            }
+    
+            console.log('Enviando dados para editar turma:', {
+                nome: turma.nome,
+                semestre: turma.semestre,
+                ano: turma.ano,
+                professor_id: turma.professor_id,
+                ID: turma.ID,  // Verifique se o ID está definido
+            });  // Debug
+    
             const response = await fetch(`https://escolaapi-go-escola-api.up.railway.app/turmas/alterar/${turma.ID}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(turma),
+                body: JSON.stringify({
+                    nome: turma.nome,
+                    semestre: turma.semestre,
+                    ano: parseInt(turma.ano, 10), // Certifique-se de que o ano é um número
+                    professor_id: turma.professor_id,
+                }),
             });
-
+    
             if (!response.ok) {
-                throw new Error('Erro ao editar turma');
+                throw new Error(`Erro ao editar turma: ${response.status} ${response.statusText}`);
             }
-
+    
             const data = await response.json();
             setTurmas((prevTurmas) =>
                 prevTurmas.map((tur) => (tur.ID === data.ID ? data : tur))
@@ -116,6 +154,7 @@ function Turmas() {
                         onSubmit={editingTurma ? editarTurma : adicionarTurma}
                         initialValues={editingTurma}
                         clearEdit={() => setEditingTurma(null)}
+                        professores={professores}
                     />
                 </div>
                 <div className="turmas-list">
@@ -130,18 +169,22 @@ function Turmas() {
                                             <p className="card-text">
                                                 <strong>Semestre:</strong> {tur.semestre}<br />
                                                 <strong>Ano:</strong> {tur.ano}<br />
-                                                <strong>Professor:</strong> {/* Professor name */}
+                                                <strong>Professor:</strong> {nomeProfessores[tur.professor_id] || 'Carregando...'}
                                             </p>
                                         </div>
-                                        <div className="d-flex flex-column">
-                                            <button className="btn btn-primary mb-2" onClick={() => setEditingTurma(tur)}>Editar</button>
-                                            <button className="btn btn-danger" onClick={() => deletarTurma(tur.ID)}>Deletar</button>
+                                        <div>
+                                            <button className="btn btn-primary mr-2" onClick={() => setEditingTurma(tur)}>
+                                                Editar
+                                            </button>
+                                            <button className="btn btn-danger" onClick={() => deletarTurma(tur.ID)}>
+                                                Excluir
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             ))
                         ) : (
-                            <p>Nenhuma turma encontrada.</p>
+                            <p>Nenhuma turma cadastrada</p>
                         )}
                     </div>
                 </div>

@@ -4,9 +4,9 @@ import './Alunos.css';
 
 function Alunos() {
     const [alunos, setAlunos] = useState([]);
+    const [turmas, setTurmas] = useState([]);
     const [editingAluno, setEditingAluno] = useState(null);
 
-    // Função para buscar alunos
     const fetchAlunos = async () => {
         try {
             const response = await fetch('https://escolaapi-go-escola-api.up.railway.app/alunos');
@@ -24,18 +24,42 @@ function Alunos() {
         }
     };
 
-    // Função para adicionar aluno
+    const fetchTurmas = async () => {
+        try {
+            const response = await fetch('https://escolaapi-go-escola-api.up.railway.app/turmas');
+            if (!response.ok) {
+                throw new Error('Erro ao buscar turmas');
+            }
+            const result = await response.json();
+            if (Array.isArray(result.data)) {
+                setTurmas(result.data);
+            } else {
+                console.error('Os dados retornados não são um array:', result.data);
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+        }
+    };
+
     const adicionarAluno = async (aluno) => {
         try {
-            const response = await fetch('https://escolaapi-go-escola-api.up.railway.app/alunos/adicionar', {
+            const alunoData = {
+                nome: aluno.nome,
+                matricula: aluno.matricula,
+                turmas: aluno.turmas, // Deve ser uma string de IDs das turmas separados por vírgulas
+            };
+
+            const response = await fetch('https://escolaapi-go-escola-api.up.railway.app/alunos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(aluno),
+                body: JSON.stringify(alunoData),
             });
 
             if (!response.ok) {
+                const error = await response.json();
+                console.error('Erro ao adicionar aluno:', error);
                 throw new Error('Erro ao adicionar aluno');
             }
 
@@ -46,7 +70,6 @@ function Alunos() {
         }
     };
 
-    // Função para editar aluno
     const editarAluno = async (aluno) => {
         try {
             const response = await fetch(`https://escolaapi-go-escola-api.up.railway.app/alunos/alterar/${aluno.ID}`, {
@@ -63,7 +86,7 @@ function Alunos() {
 
             const data = await response.json();
             setAlunos((prevAlunos) =>
-                prevAlunos.map((alu) => (alu.ID === data.ID ? data : alu))
+                prevAlunos.map((al) => (al.ID === data.ID ? data : al))
             );
             setEditingAluno(null);
         } catch (error) {
@@ -71,7 +94,6 @@ function Alunos() {
         }
     };
 
-    // Função para deletar aluno
     const deletarAluno = async (id) => {
         try {
             const response = await fetch(`https://escolaapi-go-escola-api.up.railway.app/alunos/deletar/${id}`, {
@@ -82,51 +104,70 @@ function Alunos() {
                 throw new Error('Erro ao deletar aluno');
             }
 
-            setAlunos((prevAlunos) => prevAlunos.filter((alu) => alu.ID !== id));
+            setAlunos((prevAlunos) => prevAlunos.filter((al) => al.ID !== id));
         } catch (error) {
             console.error('Erro:', error);
         }
     };
 
-    // Efeito para buscar alunos ao montar o componente
     useEffect(() => {
         fetchAlunos();
+        fetchTurmas();
     }, []);
 
+    // Função para obter os nomes das turmas a partir dos IDs
+    const getTurmasNames = (turmaIds) => {
+        const turmasMap = new Map(turmas.map(turma => [turma.ID, turma.nome]));
+        return turmaIds.map(id => turmasMap.get(id)).filter(name => name).join(', ');
+    };
+
     return (
-        <div className="alunos-container">
+        <div>
             <h1>Gerenciar Alunos</h1>
-            <div className="aluno-form-container">
-                <AlunoForm
-                    onSubmit={editingAluno ? editarAluno : adicionarAluno}
-                    initialValues={editingAluno}
-                    clearEdit={() => setEditingAluno(null)}
-                />
-            </div>
-            <div className="alunos-list">
-                <h2>Lista de Alunos</h2>
-                <div className="list-container-scrollable">
-                    {alunos.length > 0 ? (
-                        alunos.map((alu) => (
-                            <div className="card mb-3" key={alu.ID}>
-                                <div className="card-body d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <h5 className="card-title">{alu.nome}</h5>
-                                        <p className="card-text">
-                                            <strong>Matrícula:</strong> {alu.matricula}<br />
-                                            <strong>Turma:</strong> {alu.turma} {/* Se necessário, ajuste para mostrar o nome da turma */}
-                                        </p>
-                                    </div>
-                                    <div className="d-flex flex-column">
-                                        <button className="btn btn-primary mb-2" onClick={() => setEditingAluno(alu)}>Editar</button>
-                                        <button className="btn btn-danger" onClick={() => deletarAluno(alu.ID)}>Deletar</button>
+            <div className="alunos-container">
+                <div className="aluno-form-container">
+                    <AlunoForm
+                        onSubmit={editingAluno ? editarAluno : adicionarAluno}
+                        initialValues={editingAluno}
+                        clearEdit={() => setEditingAluno(null)}
+                        turmas={turmas}
+                    />
+                </div>
+                <div className="alunos-list">
+                    <h2>Lista de Alunos</h2>
+                    <div className="list-container-scrollable">
+                        {alunos.length > 0 ? (
+                            alunos.map((al) => (
+                                <div className="card mb-3" key={al.ID}>
+                                    <div className="card-body d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <h5 className="card-title">{al.nome}</h5>
+                                            <p className="card-text">
+                                                <strong>Matrícula:</strong> {al.matricula}<br />
+                                                <strong>Turmas:</strong> {getTurmasNames(al.turmas ? al.turmas.split(',').map(id => parseInt(id, 10)) : [])}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <button
+                                                className="btn btn-warning mr-2"
+                                                onClick={() => setEditingAluno(al)}
+                                            >
+                                                Editar
+                                            </button>
+                                            <button
+                                                className="btn btn-danger"
+                                                onClick={() => deletarAluno(al.ID)}
+                                            >
+                                                Deletar
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p>Nenhum aluno encontrado.</p>
-                    )}
+                            ))
+                        ) : (
+                            <p>Não há alunos cadastrados.</p>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

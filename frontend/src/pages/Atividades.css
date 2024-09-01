@@ -1,0 +1,136 @@
+/* Estilos gerais */
+body {
+    background-color: #fff;
+    color: #000;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Contêiner principal */
+.atividade-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    color: #000;
+    border-radius: 8px;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+/* Título principal */
+h1 {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+/* Contêiner do formulário */
+.atividade-form-container {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Formulário de atividades */
+.atividade-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Estilo dos inputs e textarea */
+.atividade-form input,
+.atividade-form select {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: #f5f5f5;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Estilo dos inputs e textarea ao focar */
+.atividade-form input:focus,
+.atividade-form select:focus {
+    border-color: #007BFF;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+/* Botões no formulário */
+.atividade-form button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 6px;
+    background-color: #007BFF;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Botões no hover */
+.atividade-form button:hover {
+    background-color: #0056b3;
+}
+
+/* Botões no estado ativo */
+.atividade-form button:active {
+    background-color: #004080;
+}
+
+/* Lista de atividades */
+.atividades-list {
+    margin-top: 20px;
+    width: 100%;
+}
+
+/* Contêiner rolável da lista */
+.list-container-scrollable {
+    max-height: 400px; /* Altura máxima para o contêiner de rolagem */
+    overflow-y: auto; /* Habilita a rolagem vertical */
+    padding-right: 15px; /* Espaço para a barra de rolagem */
+}
+
+/* Estilo dos cartões de atividades */
+.card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+/* Corpo do cartão */
+.card-body {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+/* Botões de ação no cartão */
+.d-flex.flex-column .btn {
+    margin-bottom: 10px; /* Espaçamento entre os botões */
+}
+
+/* Título do cartão */
+.card-title {
+    margin: 0;
+}
+
+/* Texto do cartão */
+.card-text {
+    margin: 0;
+}

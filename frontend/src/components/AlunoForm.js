@@ -1,41 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import './Alunos.css'; // Importa o arquivo de estilos
 
-function AlunoForm({ onSubmit, initialValues, clearEdit }) {
+function AlunoForm({ onSubmit, initialValues, clearEdit, turmas }) {
     const [nome, setNome] = useState('');
     const [matricula, setMatricula] = useState('');
-    const [turmas, setTurmas] = useState([]);
-    const [turmaSelecionada, setTurmaSelecionada] = useState('');
+    const [selectedTurmas, setSelectedTurmas] = useState([]);
 
     useEffect(() => {
         if (initialValues) {
             setNome(initialValues.nome || '');
             setMatricula(initialValues.matricula || '');
-            setTurmaSelecionada(initialValues.turma || '');
+            setSelectedTurmas(initialValues.turmas ? initialValues.turmas.split(',').map(id => parseInt(id, 10)) : []); // Atualiza com turmas selecionadas como números
         } else {
             clearForm();
         }
-
-        // Fetch turmas for select dropdown
-        const fetchTurmas = async () => {
-            try {
-                const response = await fetch('https://escolaapi-go-escola-api.up.railway.app/turmas');
-                if (!response.ok) {
-                    throw new Error('Erro ao buscar turmas');
-                }
-                const result = await response.json();
-                if (Array.isArray(result.data)) {
-                    setTurmas(result.data);
-                } else {
-                    console.error('Os dados retornados não são um array:', result.data);
-                }
-            } catch (error) {
-                console.error('Erro:', error);
-            }
-        };
-
-        fetchTurmas();
-    }, [initialValues, clearForm]);
+    }, [initialValues]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -43,21 +21,29 @@ function AlunoForm({ onSubmit, initialValues, clearEdit }) {
             ID: initialValues ? initialValues.ID : undefined,
             nome,
             matricula,
-            turma: turmaSelecionada,
+            turmas: selectedTurmas.join(','), // Envia como uma string de IDs separados por vírgulas
         };
         onSubmit(aluno);
-        clearForm(); // Clear fields after submit
+        clearForm(); // Limpa os campos após o envio
     };
 
     const handleCancel = () => {
-        clearEdit(); // Call parent function to clear edit mode
-        clearForm(); // Clear fields
+        clearEdit(); // Chama a função do pai para sair do modo de edição
+        clearForm(); // Limpa os campos
+    };
+
+    const handleCheckboxChange = (turmaId) => {
+        setSelectedTurmas((prevTurmas) =>
+            prevTurmas.includes(turmaId)
+                ? prevTurmas.filter(id => id !== turmaId)
+                : [...prevTurmas, turmaId]
+        );
     };
 
     const clearForm = () => {
         setNome('');
         setMatricula('');
-        setTurmaSelecionada('');
+        setSelectedTurmas([]);
     };
 
     return (
@@ -74,9 +60,7 @@ function AlunoForm({ onSubmit, initialValues, clearEdit }) {
                         onChange={(e) => setNome(e.target.value)}
                         required
                     />
-                    <div className="valid-tooltip">
-                        Tudo certo!
-                    </div>
+                    <div className="valid-tooltip">Tudo certo!</div>
                 </div>
                 <div className="col-md-12 mb-3">
                     <label htmlFor="matricula">Matrícula</label>
@@ -89,28 +73,24 @@ function AlunoForm({ onSubmit, initialValues, clearEdit }) {
                         onChange={(e) => setMatricula(e.target.value)}
                         required
                     />
-                    <div className="valid-tooltip">
-                        Tudo certo!
-                    </div>
+                    <div className="valid-tooltip">Tudo certo!</div>
                 </div>
                 <div className="col-md-12 mb-3">
-                    <label htmlFor="turma">Turma</label>
-                    <select
-                        className="form-control"
-                        id="turma"
-                        value={turmaSelecionada}
-                        onChange={(e) => setTurmaSelecionada(e.target.value)}
-                        required
-                    >
-                        <option value="">Selecione uma turma</option>
+                    <label>Turmas</label>
+                    <div className="turmas-checkboxes">
                         {turmas.map((turma) => (
-                            <option key={turma.ID} value={turma.ID}>
-                                {turma.nome} - {turma.semestre}/{turma.ano}
-                            </option>
+                            <div key={turma.ID} className="checkbox-item">
+                                <input
+                                    type="checkbox"
+                                    id={`turma-${turma.ID}`}
+                                    checked={selectedTurmas.includes(turma.ID)}
+                                    onChange={() => handleCheckboxChange(turma.ID)}
+                                />
+                                <label htmlFor={`turma-${turma.ID}`} className="ml-2">
+                                    {turma.nome}
+                                </label>
+                            </div>
                         ))}
-                    </select>
-                    <div className="valid-tooltip">
-                        Tudo certo!
                     </div>
                 </div>
             </div>

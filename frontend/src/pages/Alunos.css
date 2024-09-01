@@ -32,7 +32,7 @@ h1 {
 }
 
 .aluno-form input,
-.aluno-form select {
+.aluno-form textarea {
     width: 100%;
     padding: 15px;
     border: 1px solid #ddd;
@@ -44,7 +44,7 @@ h1 {
 }
 
 .aluno-form input:focus,
-.aluno-form select:focus {
+.aluno-form textarea:focus {
     border-color: #007BFF;
     outline: none;
     box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
@@ -118,8 +118,8 @@ h1 {
 }
 
 .aluno-form input,
-.aluno-form select {
-    width: 100%; /* Faz os inputs e select ocuparem 100% da largura do contêiner */
+.aluno-form textarea {
+    width: 100%; /* Faz os inputs ocuparem 100% da largura do contêiner */
     padding: 15px;
     border: 1px solid #ddd;
     border-radius: 6px;
@@ -146,3 +146,25 @@ h1 {
     font-size: 14px; /* Ajusta o tamanho da fonte */
     border-radius: 4px; /* Pode ajustar o border-radius para se adequar ao tamanho menor */
 }
+
+.turmas-checkboxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); /* Ajusta o número de colunas dependendo do tamanho disponível */
+    gap: 10px; /* Espaço entre os itens */
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 20px; /* Define o tamanho do checkbox */
+    height: 20px; /* Define o tamanho do checkbox */
+    margin-right: 10px; /* Espaço entre o checkbox e o texto */
+}
+
+.checkbox-item label {
+    font-size: 16px; /* Ajusta o tamanho da fonte do texto */
+}
+
