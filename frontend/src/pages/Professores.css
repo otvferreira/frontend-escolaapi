@@ -1,0 +1,148 @@
+body {
+    background-color: #fff;
+    color: #000;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.professores-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    color: #000;
+    border-radius: 8px;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+h1 {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.professor-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.professor-form input,
+.professor-form textarea {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: #f5f5f5;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.professor-form input:focus,
+.professor-form textarea:focus {
+    border-color: #007BFF;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+.professor-form button {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 6px;
+    background-color: #007BFF;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.professor-form button:hover {
+    background-color: #0056b3;
+}
+
+.professor-form button:active {
+    background-color: #004080;
+}
+
+.professores-list {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.list-container-scrollable {
+    max-height: 400px; /* Altura máxima para o contêiner de rolagem */
+    overflow-y: auto; /* Habilita a rolagem vertical */
+    padding-right: 15px; /* Espaço para a barra de rolagem */
+}
+
+.card {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 20px;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.card-body {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.d-flex.justify-content-between {
+    display: flex;
+    justify-content: space-between;
+}
+
+.professor-form-container {
+    width: 100%; /* A mesma largura da lista de professores */
+    max-width: 100%; /* Impedir que ultrapasse a largura máxima */
+}
+
+.professor-form {
+    width: 100%; /* Faz o formulário ocupar 100% da largura do contêiner */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.professor-form input,
+.professor-form textarea {
+    width: 100%; /* Faz os inputs ocuparem 100% da largura do contêiner */
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    box-sizing: border-box;
+    background-color: #f5f5f5;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.professor-form button {
+    width: 100%; /* Botões também ocupam 100% da largura */
+    padding: 15px;
+    border: none;
+    border-radius: 6px;
+    background-color: #007BFF;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-small {
+    padding: 8px 15px; /* Ajusta o padding para tornar o botão menor */
+    font-size: 14px; /* Ajusta o tamanho da fonte */
+    border-radius: 4px; /* Pode ajustar o border-radius para se adequar ao tamanho menor */
+}
