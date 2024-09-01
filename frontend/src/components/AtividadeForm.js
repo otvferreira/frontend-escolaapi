@@ -7,7 +7,7 @@ function AtividadeForm({ onSubmit, initialValues, clearEdit, turmas }) {
 
     useEffect(() => {
         if (initialValues) {
-            setTurmaID(initialValues.turmaID || '');
+            setTurmaID(initialValues.turma_id || '');
             setValor(initialValues.valor || '');
             setData(initialValues.data || '');
         } else {
@@ -18,10 +18,9 @@ function AtividadeForm({ onSubmit, initialValues, clearEdit, turmas }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         const atividade = {
-            ID: initialValues ? initialValues.ID : undefined,
-            turmaID,
-            valor,
-            data,
+            turma_id: parseInt(turmaID, 10), // Converter para inteiro
+            valor: parseFloat(valor), // Converter para número flutuante
+            data: data
         };
         onSubmit(atividade);
         clearForm(); // Clear fields after submit

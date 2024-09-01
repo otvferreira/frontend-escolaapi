@@ -7,7 +7,6 @@ function Atividade() {
     const [turmas, setTurmas] = useState([]);
     const [editingAtividade, setEditingAtividade] = useState(null);
 
-    // Fetch atividades and turmas from the API
     const fetchAtividades = async () => {
         try {
             const response = await fetch('https://escolaapi-go-escola-api.up.railway.app/atividades');
@@ -44,20 +43,35 @@ function Atividade() {
         }
     };
 
+    const validarTotalPontos = (turmaID, valor) => {
+        const total = atividades
+            .filter(atv => atv.turma_id === turmaID)
+            .reduce((acc, atv) => acc + atv.valor, 0);
+
+        return total + valor <= 100;
+    };
+
     const adicionarAtividade = async (atividade) => {
+        if (!validarTotalPontos(atividade.turma_id, atividade.valor)) {
+            alert('O total de pontos não pode ultrapassar 100 pontos.');
+            return;
+        }
+
         try {
-            const response = await fetch('https://escolaapi-go-escola-api.up.railway.app/atividades/adicionar', {
+            const response = await fetch('https://escolaapi-go-escola-api.up.railway.app/atividades', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(atividade),
             });
-
+    
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Erro ao adicionar atividade:', errorText);
                 throw new Error('Erro ao adicionar atividade');
             }
-
+    
             const data = await response.json();
             setAtividades((prevAtividades) => [...prevAtividades, data]);
         } catch (error) {
@@ -66,8 +80,13 @@ function Atividade() {
     };
 
     const editarAtividade = async (atividade) => {
+        if (!validarTotalPontos(atividade.turma_id, atividade.valor)) {
+            alert('O total de pontos não pode ultrapassar 100 pontos.');
+            return;
+        }
+
         try {
-            const response = await fetch(`https://escolaapi-go-escola-api.up.railway.app/atividades/alterar/${atividade.ID}`, {
+            const response = await fetch(`https://escolaapi-go-escola-api.up.railway.app/atividades/${atividade.ID}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -76,6 +95,8 @@ function Atividade() {
             });
 
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Erro ao editar atividade:', errorText);
                 throw new Error('Erro ao editar atividade');
             }
 
@@ -91,11 +112,13 @@ function Atividade() {
 
     const deletarAtividade = async (id) => {
         try {
-            const response = await fetch(`https://escolaapi-go-escola-api.up.railway.app/atividades/deletar/${id}`, {
+            const response = await fetch(`https://escolaapi-go-escola-api.up.railway.app/atividades/${id}`, {
                 method: 'DELETE',
             });
 
             if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Erro ao deletar atividade:', errorText);
                 throw new Error('Erro ao deletar atividade');
             }
 
@@ -103,6 +126,12 @@ function Atividade() {
         } catch (error) {
             console.error('Erro:', error);
         }
+    };
+
+    const formatarData = (data) => {
+        if (!data) return 'Data não especificada';
+        const [ano, mes, dia] = data.split('-');
+        return `${dia}/${mes}/${ano}`;
     };
 
     useEffect(() => {
@@ -120,29 +149,35 @@ function Atividade() {
                         initialValues={editingAtividade}
                         clearEdit={() => setEditingAtividade(null)}
                         turmas={turmas}
+                        atividades={atividades}
                     />
                 </div>
                 <div className="atividades-list">
                     <h2>Lista de Atividades</h2>
                     <div className="list-container-scrollable">
                         {atividades.length > 0 ? (
-                            atividades.map((atv) => (
-                                <div className="card mb-3" key={atv.ID}>
-                                    <div className="card-body d-flex align-items-center justify-content-between">
-                                        <div>
-                                            <h5 className="card-title">Turma: {atv.turmaID}</h5>
-                                            <p className="card-text">
-                                                <strong>Valor:</strong> {atv.valor}<br />
-                                                <strong>Data:</strong> {atv.data}
-                                            </p>
-                                        </div>
-                                        <div className="d-flex flex-column">
-                                            <button className="btn btn-primary mb-2" onClick={() => setEditingAtividade(atv)}>Editar</button>
-                                            <button className="btn btn-danger" onClick={() => deletarAtividade(atv.ID)}>Deletar</button>
+                            atividades.map((atv) => {
+                                const turma = turmas.find(turma => turma.ID === atv.turma_id);
+                                return (
+                                    <div className="card mb-3" key={atv.ID}>
+                                        <div className="card-body d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <h5 className="card-title">
+                                                    Turma: {turma ? turma.nome : 'Desconhecida'}
+                                                </h5>
+                                                <p className="card-text">
+                                                    <strong>Valor:</strong> {atv.valor !== undefined ? atv.valor : 'Não especificado'}<br />
+                                                    <strong>Data:</strong> {formatarData(atv.data)}
+                                                </p>
+                                            </div>
+                                            <div className="d-flex flex-column">
+                                                <button className="btn btn-primary mb-2" onClick={() => setEditingAtividade(atv)}>Editar</button>
+                                                <button className="btn btn-danger" onClick={() => deletarAtividade(atv.ID)}>Deletar</button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))
+                                );
+                            })
                         ) : (
                             <p>Nenhuma atividade encontrada.</p>
                         )}
