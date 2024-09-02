@@ -1,22 +1,59 @@
 import React, { useState, useEffect } from 'react';
 
-function NotasForm({ onSubmit, turmas, atividades, clearEdit, initialValues }) {
+function NotasForm({ onSubmit, turmas, atividades, alunos, clearEdit, initialValues, setSelectedTurma, setSelectedAtividade }) {
     const [turma, setTurma] = useState('');
     const [atividade, setAtividade] = useState('');
     const [notas, setNotas] = useState([]);
+    const [atividadesFiltradas, setAtividadesFiltradas] = useState([]);
+
+    useEffect(() => {
+        if (turma && atividade) {
+            const turmaID = parseInt(turma, 10);
+            const alunosMatriculados = alunos.filter(aluno => aluno.turmas.split(',').map(id => parseInt(id, 10)).includes(turmaID));
+            setNotas(alunosMatriculados.map(aluno => ({
+                alunoID: aluno.ID,
+                alunoNome: aluno.nome,
+                valor: ''
+            })));
+        }
+    }, [turma, atividade, alunos]);
 
     useEffect(() => {
         if (initialValues) {
-            setTurma(initialValues.turma || '');
-            setAtividade(initialValues.atividade || '');
-            setNotas(initialValues.notas || []);
-        } else {
-            clearForm();
+            setTurma(initialValues.turma);
+            setAtividade(initialValues.atividade);
+            setNotas(initialValues.notas);
         }
     }, [initialValues]);
 
+    useEffect(() => {
+        const turmaID = parseInt(turma, 10);
+        if (turmaID) {
+            setAtividadesFiltradas(atividades.filter(atividade => atividade.turma_id === turmaID));
+        } else {
+            setAtividadesFiltradas([]);
+        }
+    }, [turma, atividades]);
+
+    const handleTurmaChange = (e) => {
+        const value = e.target.value;
+        setTurma(value);
+        setSelectedTurma(value); // Atualiza o valor selecionado
+
+        // Limpa a atividade somente quando a turma muda
+        if (atividade && value) {
+            setAtividade('');
+        }
+    };
+
+    const handleAtividadeChange = (e) => {
+        const value = e.target.value;
+        setAtividade(value);
+        setSelectedAtividade(value); // Atualiza o valor selecionado
+    };
+
     const handleNotaChange = (index, value) => {
-        setNotas((prevNotas) =>
+        setNotas(prevNotas =>
             prevNotas.map((nota, i) =>
                 i === index ? { ...nota, valor: value } : nota
             )
@@ -28,8 +65,13 @@ function NotasForm({ onSubmit, turmas, atividades, clearEdit, initialValues }) {
         const notasData = {
             turma,
             atividade,
-            notas,
+            notas: notas.map(nota => ({
+                aluno_id: nota.alunoID,
+                atividade_id: parseInt(atividade, 10),
+                nota: parseFloat(nota.valor) || 0,
+            })),
         };
+
         onSubmit(notasData);
         clearForm(); // Clear fields after submit
     };
@@ -40,7 +82,6 @@ function NotasForm({ onSubmit, turmas, atividades, clearEdit, initialValues }) {
     };
 
     const clearForm = () => {
-        setTurma('');
         setAtividade('');
         setNotas([]);
     };
@@ -54,7 +95,7 @@ function NotasForm({ onSubmit, turmas, atividades, clearEdit, initialValues }) {
                         id="turma"
                         className="form-control"
                         value={turma}
-                        onChange={(e) => setTurma(e.target.value)}
+                        onChange={handleTurmaChange} // Atualiza o valor e chama a função pai
                         required
                     >
                         <option value="">Selecione a turma</option>
@@ -71,45 +112,35 @@ function NotasForm({ onSubmit, turmas, atividades, clearEdit, initialValues }) {
                         id="atividade"
                         className="form-control"
                         value={atividade}
-                        onChange={(e) => setAtividade(e.target.value)}
+                        onChange={handleAtividadeChange} // Atualiza o valor e chama a função pai
                         required
                     >
                         <option value="">Selecione a atividade</option>
-                        {atividades.map((atividade) => (
+                        {atividadesFiltradas.map((atividade) => (
                             <option key={atividade.ID} value={atividade.ID}>
                                 {atividade.nome} - {atividade.valor} pontos
                             </option>
                         ))}
                     </select>
                 </div>
-                {notas.map((nota, index) => (
-                    <div className="col-md-12 mb-3" key={index}>
-                        <label htmlFor={`nota-${index}`}>Nota para {nota.alunoNome}</label>
-                        <input
-                            type="number"
-                            className="form-control"
-                            id={`nota-${index}`}
-                            placeholder={`Nota para ${nota.alunoNome}`}
-                            value={nota.valor || ''}
-                            onChange={(e) => handleNotaChange(index, e.target.value)}
-                            min="0"
-                            max="100"
-                            required
-                        />
-                    </div>
-                ))}
+                <div className="col-md-12 mb-3 notas-scrollable">
+                    {notas.map((nota, index) => (
+                        <div className="nota-item" key={index}>
+                            <span>{nota.alunoNome}</span>
+                            <input
+                                type="number"
+                                value={nota.valor}
+                                onChange={(e) => handleNotaChange(index, e.target.value)}
+                                min="0"
+                                max="100"
+                                style={{ width: '5rem' }} // Ajuste o tamanho do campo de entrada
+                            />
+                        </div>
+                    ))}
+                </div>
             </div>
-            <button
-                className={`btn ${initialValues ? 'btn-primary' : 'btn-small'}`}
-                type="submit"
-            >
-                {initialValues ? 'Atualizar' : 'Adicionar'} Notas
-            </button>
-            {initialValues && (
-                <button className="btn btn-secondary ml-2" type="button" onClick={handleCancel}>
-                    Cancelar
-                </button>
-            )}
+            <button type="submit" className="btn btn-primary">Salvar</button>
+            <button type="button" className="btn btn-secondary" onClick={handleCancel}>Cancelar</button>
         </form>
     );
 }
