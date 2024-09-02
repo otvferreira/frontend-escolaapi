@@ -53,6 +53,19 @@ function NotasForm({ onSubmit, turmas, atividades, alunos, clearEdit, initialVal
     };
 
     const handleNotaChange = (index, value) => {
+        // Encontre a atividade selecionada usando seu ID
+        const atividadeSelecionada = atividadesFiltradas.find((atv) => atv.ID === parseInt(atividade, 10));
+        
+        // Obtenha o valor máximo da atividade selecionada
+        const valorMaximo = atividadeSelecionada ? atividadeSelecionada.valor : 0; // Define o valor máximo para a nota com base na atividade
+    
+        // Valida se o valor da nota não excede o valor máximo da atividade
+        if (parseFloat(value) > valorMaximo) {
+            alert(`A nota não pode ser maior que o valor máximo da atividade: ${valorMaximo}`);
+            return;
+        }
+    
+        // Atualize o estado das notas
         setNotas(prevNotas =>
             prevNotas.map((nota, i) =>
                 i === index ? { ...nota, valor: value } : nota
@@ -124,20 +137,20 @@ function NotasForm({ onSubmit, turmas, atividades, alunos, clearEdit, initialVal
                     </select>
                 </div>
                 <div className="col-md-12 mb-3 notas-scrollable">
-                    {notas.map((nota, index) => (
-                        <div className="nota-item" key={index}>
-                            <span>{nota.alunoNome}</span>
-                            <input
-                                type="number"
-                                value={nota.valor}
-                                onChange={(e) => handleNotaChange(index, e.target.value)}
-                                min="0"
-                                max="100"
-                                style={{ width: '5rem' }} // Ajuste o tamanho do campo de entrada
-                            />
-                        </div>
-                    ))}
-                </div>
+                {notas.map((nota, index) => (
+                    <div className="nota-item" key={index}>
+                        <span>{nota.alunoNome}</span>
+                        <input
+                            type="number"
+                            value={nota.valor}
+                            onChange={(e) => handleNotaChange(index, e.target.value)}
+                            min="0"
+                            max={atividadesFiltradas.find((atv) => atv.ID === parseInt(atividade, 10))?.valor || 0}
+                            style={{ width: '5rem' }}
+                        />
+                    </div>
+                ))}
+            </div>
             </div>
             <button type="submit" className="btn btn-primary">Salvar</button>
             <button type="button" className="btn btn-secondary" onClick={handleCancel}>Cancelar</button>

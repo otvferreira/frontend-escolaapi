@@ -43,17 +43,17 @@ function Atividade() {
         }
     };
 
-    const validarTotalPontos = (turmaID, valor) => {
+    const validarSomaAtividades = (turmaID, valor, atividadeID) => {
         const total = atividades
-            .filter(atv => atv.turma_id === turmaID)
+            .filter(atv => atv.turma_id === turmaID && atv.ID !== atividadeID)
             .reduce((acc, atv) => acc + atv.valor, 0);
 
         return total + valor <= 100;
     };
 
     const adicionarAtividade = async (atividade) => {
-        if (!validarTotalPontos(atividade.turma_id, atividade.valor)) {
-            alert('O total de pontos não pode ultrapassar 100 pontos.');
+        if (!validarSomaAtividades(atividade.turma_id, atividade.valor, null)) {
+            alert('A soma das atividades da mesma turma não pode ultrapassar 100 pontos.');
             return;
         }
 
@@ -80,8 +80,8 @@ function Atividade() {
     };
 
     const editarAtividade = async (atividade) => {
-        if (!validarTotalPontos(atividade.turma_id, atividade.valor)) {
-            alert('O total de pontos não pode ultrapassar 100 pontos.');
+        if (!validarSomaAtividades(atividade.turma_id, atividade.valor, atividade.ID)) {
+            alert('A soma das atividades da mesma turma não pode ultrapassar 100 pontos.');
             return;
         }
 

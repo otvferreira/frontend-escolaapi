@@ -4,6 +4,7 @@ function AtividadeForm({ onSubmit, initialValues, clearEdit, turmas }) {
     const [turmaID, setTurmaID] = useState('');
     const [valor, setValor] = useState('');
     const [data, setData] = useState('');
+    const [error, setError] = useState('');
 
     useEffect(() => {
         if (initialValues) {
@@ -17,18 +18,24 @@ function AtividadeForm({ onSubmit, initialValues, clearEdit, turmas }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (valor > 100) {
+            setError('O valor não pode ser maior que 100.');
+            return;
+        }
         const atividade = {
             turma_id: parseInt(turmaID, 10), // Converter para inteiro
             valor: parseFloat(valor), // Converter para número flutuante
             data: data
         };
         onSubmit(atividade);
-        clearForm(); // Clear fields after submit
+        clearForm(); // Limpa os campos após o envio
+        setError(''); // Limpa a mensagem de erro
     };
 
     const handleCancel = () => {
-        clearEdit(); // Call parent function to clear edit mode
-        clearForm(); // Clear fields
+        clearEdit(); // Chama a função do pai para limpar o modo de edição
+        clearForm(); // Limpa os campos
+        setError(''); // Limpa a mensagem de erro
     };
 
     const clearForm = () => {
@@ -81,6 +88,7 @@ function AtividadeForm({ onSubmit, initialValues, clearEdit, turmas }) {
                     />
                 </div>
             </div>
+            {error && <p className="text-danger">{error}</p>}
             <button
                 className={`btn ${initialValues ? 'btn-primary' : 'btn-small'}`}
                 type="submit"
